@@ -1,0 +1,1 @@
+npm install @nestjs/config @nestjs/jwt @nestjs/passport @nestjs/typeorm bcrypt mysql2 nodemailer passport passport-google-oauth20 typeorm uuid
