@@ -6,6 +6,8 @@ import { Attempt } from './modules/attempt/attempt.entity';
 import { Question } from './modules/exam/entities/question.entity';
 import { Choice } from './modules/exam/entities/choice.entity';
 import { Subject } from 'typeorm/persistence/Subject';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -18,9 +20,9 @@ import { Subject } from 'typeorm/persistence/Subject';
       database: 'examineeDB',
       entities: [User, Exam, Attempt, Question, Choice, Subject],
       synchronize: true
-    })
-  ],
-  controllers: [],
-  providers: [],
+    }),
+    AuthModule,
+    UserModule
+  ]
 })
 export class AppModule {}
