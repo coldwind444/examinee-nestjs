@@ -5,13 +5,15 @@ import { Exam } from './modules/exam/entities/exam.entity';
 import { Attempt } from './modules/attempt/attempt.entity';
 import { Question } from './modules/exam/entities/question.entity';
 import { Choice } from './modules/exam/entities/choice.entity';
-import { Subject } from 'typeorm/persistence/Subject';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { ExamModule } from './modules/exam/exam.module';
+import { ConfigModule } from '@nestjs/config';
+import { Subject } from './modules/exam/entities/subject.entity';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
