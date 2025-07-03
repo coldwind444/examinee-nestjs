@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Question } from "./question.entity";
 
-@Entity()
+@Entity({ name: 'choice' })
 export class Choice {
     @PrimaryGeneratedColumn()
     id: number

@@ -4,11 +4,13 @@ import { Exam } from "./entities/exam.entity";
 import { Question } from "./entities/question.entity";
 import { Choice } from "./entities/choice.entity";
 import { Subject } from "./entities/subject.entity";
+import { ExamService } from "./exam.service";
+import { ExamController } from "./exam.controller";
 
 @Module({
     imports: [TypeOrmModule.forFeature([Exam, Question, Choice, Subject])],
-    providers: [],
-    controllers: []
+    providers: [ExamService],
+    controllers: [ExamController]
 })
 
 export class ExamModule {}

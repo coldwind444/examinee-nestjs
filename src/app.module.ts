@@ -8,6 +8,7 @@ import { Choice } from './modules/exam/entities/choice.entity';
 import { Subject } from 'typeorm/persistence/Subject';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
+import { ExamModule } from './modules/exam/exam.module';
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { UserModule } from './modules/user/user.module';
       synchronize: true
     }),
     AuthModule,
-    UserModule
+    UserModule,
+    ExamModule
   ]
 })
 export class AppModule {}

@@ -2,7 +2,7 @@ import { User } from "src/modules/user/user.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Subject } from "./subject.entity";
 
-@Entity()
+@Entity({ name: 'exam' })
 export class Exam {
     @PrimaryGeneratedColumn()
     id: number
@@ -12,9 +12,6 @@ export class Exam {
 
     @Column()
     scale: number
-
-    @Column({ name: 'number_of_choices' })
-    noc: string
 
     @Column()
     duration: number

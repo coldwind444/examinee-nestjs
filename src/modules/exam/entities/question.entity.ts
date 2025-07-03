@@ -1,10 +1,11 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Exam } from "./exam.entity";
+import { Choice } from "./choice.entity";
 
-@Entity()
+@Entity({ name: 'question' })
 export class Question {
     @PrimaryGeneratedColumn()
-    id: string
+    id: number
 
     @Column()
     order: number
@@ -14,6 +15,9 @@ export class Question {
 
     @Column()
     key: string
+
+    @Column({ name: 'number_of_choices' })
+    noc: number
 
     @ManyToOne(t => Exam)
     @JoinColumn( { name: 'exam_id' } )

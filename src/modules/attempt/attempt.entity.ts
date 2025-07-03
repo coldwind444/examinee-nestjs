@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "t
 import { User } from "../user/user.entity";
 import { Exam } from "../exam/entities/exam.entity";
 
-@Entity()
+@Entity({ name: 'attempt' })
 export class Attempt {
     @PrimaryGeneratedColumn()
     id: number
@@ -15,6 +15,9 @@ export class Attempt {
 
     @Column()
     duration: number
+
+    @Column()
+    correct: number
 
     @ManyToOne(t => User)
     @JoinColumn({ name: 'user_id' })
