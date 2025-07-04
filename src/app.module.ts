@@ -12,6 +12,7 @@ import { ConfigModule } from '@nestjs/config';
 import { Subject } from './modules/exam/entities/subject.entity';
 import { Otp } from './modules/auth/entities/otp.entity';
 import { InvalidatedToken } from './modules/auth/entities/invalidated-token.entity';
+import { AttemptModule } from './modules/attempt/attempt.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { InvalidatedToken } from './modules/auth/entities/invalidated-token.enti
     }),
     AuthModule,
     UserModule,
-    ExamModule
+    ExamModule,
+    AttemptModule
   ]
 })
 export class AppModule {}
