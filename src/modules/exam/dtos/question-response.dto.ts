@@ -1,9 +1,19 @@
+import { ApiProperty } from "@nestjs/swagger"
 import { ChoiceResponseDto } from "./choice-response.dto"
 
-export interface QuestionResponseDto {
+export class QuestionResponseDto {
+    @ApiProperty()
     id: number
+
+    @ApiProperty()
     order: number
+
+    @ApiProperty()
     content: string
+
+    @ApiProperty()
     key: string
+
+    @ApiProperty()
     choices: ChoiceResponseDto[]
 }

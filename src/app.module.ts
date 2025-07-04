@@ -10,6 +10,8 @@ import { UserModule } from './modules/user/user.module';
 import { ExamModule } from './modules/exam/exam.module';
 import { ConfigModule } from '@nestjs/config';
 import { Subject } from './modules/exam/entities/subject.entity';
+import { Otp } from './modules/auth/entities/otp.entity';
+import { InvalidatedToken } from './modules/auth/entities/invalidated-token.entity';
 
 @Module({
   imports: [
@@ -21,7 +23,7 @@ import { Subject } from './modules/exam/entities/subject.entity';
       username: 'root',
       password: '1234',
       database: 'examineeDB',
-      entities: [User, Exam, Attempt, Question, Choice, Subject],
+      entities: [User, Exam, Attempt, Question, Choice, Subject, Otp, InvalidatedToken],
       synchronize: true
     }),
     AuthModule,

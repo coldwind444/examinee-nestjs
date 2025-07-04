@@ -37,7 +37,7 @@ export class AppAuthGuard implements CanActivate {
                     throw new HttpException('Cannot decode expired token', HttpStatus.UNAUTHORIZED);
                 }
             }
-            throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED)
+            throw new HttpException(`Unauthorized: ${err.message}`, HttpStatus.UNAUTHORIZED)
         }
 
         return true

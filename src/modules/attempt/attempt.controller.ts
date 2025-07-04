@@ -5,6 +5,7 @@ import { Exam } from "../exam/entities/exam.entity";
 import { Attempt } from "./attempt.entity";
 import { AppAuthGuard } from "../auth/guards/auth.guard";
 import { AttemptCreateDto } from "./dtos/attempt-create.dto";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @Controller('attempts')
 export class AttemptController {
@@ -13,6 +14,7 @@ export class AttemptController {
     ){}
 
     @Get('recently')
+    @ApiBearerAuth('jwt')
     @UseGuards(AppAuthGuard)
     async getRecently(@Req() req) : Promise<ApiResponse<Exam[]>> {
         const res = await this.attemptService.getRecentlyDone(req.user.userid)
@@ -24,6 +26,7 @@ export class AttemptController {
     }
 
     @Get('history')
+    @ApiBearerAuth('jwt')
     @UseGuards(AppAuthGuard)
     async getHistory(@Req() req) : Promise<ApiResponse<Exam[]>> {
         const res = await this.attemptService.getHistory(req.user.userid)
@@ -35,6 +38,7 @@ export class AttemptController {
     }
 
     @Get()
+    @ApiBearerAuth('jwt')
     @UseGuards(AppAuthGuard)
     async getAttempts(@Req() req, @Query('eid', ParseIntPipe) eid: number) : Promise<ApiResponse<Attempt[]>> {
         const res = await this.attemptService.getAttemptsOfExam(req.user.userid, eid)
@@ -46,6 +50,7 @@ export class AttemptController {
     }
 
     @Post('submit')
+    @ApiBearerAuth('jwt')
     @UseGuards(AppAuthGuard)
     async submit(@Req() req, @Query('eid', ParseIntPipe) eid: number , @Body() body: AttemptCreateDto) : Promise<ApiResponse<boolean>> {
         const res = await this.attemptService.submitAttempt(req.user.userid, eid, body)

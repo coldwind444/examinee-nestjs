@@ -88,7 +88,7 @@ export class ExamService {
         return res
     }
 
-    async extractQuestionsFromExcel(filePath: string, noc: number): Promise<TemporaryQuestion[]> {
+    async extractQuestionsFromExcel(filePath: string, noc: number, noq: number): Promise<TemporaryQuestion[]> {
         const workbook = new ExcelJS.Workbook()
 
         try {
@@ -101,18 +101,20 @@ export class ExamService {
         const worksheet = workbook.worksheets[0]
         let rs: TemporaryQuestion[] = []
 
-        worksheet.eachRow((row, rowNumber) => {
-            const content = row.getCell(1).value?.toString()
-            const key = row.getCell(noc + 2).value?.toString()
+        for (let rowNumber = 2; rowNumber <= noq + 1; rowNumber++) {
+            const row = worksheet.getRow(rowNumber)
+            const content = row.getCell(2).value?.toString()
+            const key = row.getCell(noc + 3).value?.toString()
 
             if (!content || !key) {
+                console.log(rowNumber)
                 throw new HttpException('Invalid format.', HttpStatus.INTERNAL_SERVER_ERROR)
             }
 
             let choices: TemporaryChoice[] = []
             for (let i = 1; i <= noc; i++) {
                 const letter = String.fromCharCode(i + 64)
-                const choiceContent = row.getCell(i + 1).value?.toString()
+                const choiceContent = row.getCell(i + 2).value?.toString()
                 if (!choiceContent) {
                     throw new HttpException('Invalid format.', HttpStatus.INTERNAL_SERVER_ERROR)
                 }
@@ -120,13 +122,13 @@ export class ExamService {
             }
 
             rs.push({ order: rowNumber, content, key, choices })
-        })
+        }
 
         return rs
     }
 
     async addExam(userid: number, req: ExamCreateDto): Promise<Exam> {
-        const questions = await this.extractQuestionsFromExcel(req.filePath, req.cpq)
+        const questions = await this.extractQuestionsFromExcel(req.filePath, req.cpq, req.noq)
 
         const subject = await this.subjectRepository.findOne({ where: { name: req.subject } })
             ?? await this.subjectRepository.save({ name: req.subject })
@@ -134,6 +136,7 @@ export class ExamService {
         const exam = this.examRepository.create({
             title: req.title,
             scale: req.scale,
+            noq: req.noq,
             duration: req.duration,
             publisher: { id: userid },
             subject: { id: subject.id }

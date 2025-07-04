@@ -14,6 +14,9 @@ export class Exam {
     scale: number
 
     @Column()
+    noq: number
+
+    @Column()
     duration: number
 
     @ManyToOne(t => User)

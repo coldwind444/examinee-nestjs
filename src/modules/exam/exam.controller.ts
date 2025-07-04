@@ -7,6 +7,7 @@ import { AppAuthGuard } from "../auth/guards/auth.guard";
 import { Question } from "./entities/question.entity";
 import { ExamCreateDto } from "./dtos/exam-create.dto";
 import { QuestionResponseDto } from "./dtos/question-response.dto";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @Controller('exams')
 export class ExamController {
@@ -15,6 +16,7 @@ export class ExamController {
     ) {}
 
     @Get()
+    @ApiBearerAuth('jwt')
     @UseGuards(AppAuthGuard)
     async getAll(): Promise<ApiResponse<Exam[]>> {
         const res = await this.examService.getAllExams()
@@ -26,6 +28,7 @@ export class ExamController {
     }
 
     @Get('my-exams')
+    @ApiBearerAuth('jwt')
     @UseGuards(AppAuthGuard)
     async getMyExams(@Req() req): Promise<ApiResponse<Exam[]>> {
         const userid = req.user.userid
@@ -38,6 +41,7 @@ export class ExamController {
     }
 
     @Get('filter')
+    @ApiBearerAuth('jwt')
     @UseGuards(AppAuthGuard)
     async getExamsByFilters(
             @Query('sid', ParseIntPipe) sid: number,
@@ -53,6 +57,7 @@ export class ExamController {
     }
 
     @Get('questions')
+    @ApiBearerAuth('jwt')
     @UseGuards(AppAuthGuard)
     async getExamQuestions(@Query('eid') eid: number) : Promise<ApiResponse<QuestionResponseDto[]>> {
         const res = await this.examService.getExamQuestions(eid)
@@ -64,6 +69,7 @@ export class ExamController {
     }
 
     @Post('add')
+    @ApiBearerAuth('jwt')
     @UseGuards(AppAuthGuard)
     async addExam(@Req() req, @Body() body : ExamCreateDto) : Promise<ApiResponse<Exam>> {
         const res = await this.examService.addExam(req.user.userid, body)

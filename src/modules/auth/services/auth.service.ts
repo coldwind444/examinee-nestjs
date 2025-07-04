@@ -7,7 +7,6 @@ import { OtpService } from "./otp.service";
 import { MailService } from "./mail.service";
 import { LoginDto } from "../dtos/login.dto";
 import { TokenDto } from "../dtos/token.dto";
-import { OtpRequestDto } from "../dtos/otp-request.dto";
 import { OtpResponseDto } from "../dtos/otp-response.dto";
 import { ConfirmOtpDto } from "../dtos/confirm-otp.dto";
 import { ResetPasswordDto } from "../dtos/reset-password.dto";
@@ -128,15 +127,15 @@ export class AuthService {
         return this.tokenService.invalid(jti)
     }
 
-    async getOtp(req: OtpRequestDto): Promise<OtpResponseDto> {
-        const user = await this.userService.findByEmail(req.email)
+    async getOtp(email: string): Promise<OtpResponseDto> {
+        const user = await this.userService.findByEmail(email)
         if (!user) throw new HttpException('User not found.', HttpStatus.NOT_FOUND)
 
         const otp = await this.otpService.generateOtp(user.id)
 
         try {
             await this.mailService.sendMail(
-                req.email,
+                email,
                 'Reset your password',
                 `Your One-Time-Password is ${otp}. This OTP will expire in 15 minutes. Please do not share it with anyone.`
             )

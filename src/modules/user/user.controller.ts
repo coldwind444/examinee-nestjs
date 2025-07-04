@@ -4,6 +4,7 @@ import { ApiResponse } from "src/common/api-response";
 import { UserResponseDto } from "./dtos/user-response.dto";
 import { UserService } from "./user.service";
 import { AppAuthGuard } from "../auth/guards/auth.guard";
+import { ApiBearerAuth } from "@nestjs/swagger";
 
 @Controller('users')
 export class UserController {
@@ -22,6 +23,7 @@ export class UserController {
     }
 
     @Get('profile')
+    @ApiBearerAuth('jwt')
     @UseGuards(AppAuthGuard)
     async getById(@Request() req ) : Promise<ApiResponse<UserResponseDto>> {
         const res = await this.userService.getUser(req.user.userid)

@@ -28,7 +28,7 @@ import { UserModule } from "../user/user.module";
         }),
         forwardRef(() => UserModule)
     ],
-    providers: [AuthService, InvalidatedTokenService, MailService, OtpService, GoogleStrategy, AppAuthGuard],
+    providers: [AuthService, InvalidatedTokenService, MailService, OtpService, GoogleStrategy, AppAuthGuard, ConfigService],
     controllers: [AuthController],
     exports: [AuthService, AppAuthGuard, JwtModule]
 })
