@@ -8,6 +8,7 @@ import { Question } from "./entities/question.entity";
 import { ExamCreateDto } from "./dtos/exam-create.dto";
 import { QuestionResponseDto } from "./dtos/question-response.dto";
 import { ApiBearerAuth } from "@nestjs/swagger";
+import { Subject } from "./entities/subject.entity";
 
 @Controller('exams')
 export class ExamController {
@@ -20,6 +21,18 @@ export class ExamController {
     @UseGuards(AppAuthGuard)
     async getAll(): Promise<ApiResponse<Exam[]>> {
         const res = await this.examService.getAllExams()
+        return {
+            status: 200,
+            message: 'All exams fetched.',
+            data: res
+        }
+    }
+
+    @Get('subjects')
+    @ApiBearerAuth('jwt')
+    @UseGuards(AppAuthGuard)
+    async getAllSub() : Promise<ApiResponse<Subject[]>> {
+        const res = await this.examService.getAllSubjects()
         return {
             status: 200,
             message: 'All exams fetched.',
@@ -44,11 +57,28 @@ export class ExamController {
     @ApiBearerAuth('jwt')
     @UseGuards(AppAuthGuard)
     async getExamsByFilters(
-            @Query('sid', ParseIntPipe) sid: number,
+            @Query('sid') sid: number,
             @Query('title') title: string
     ): Promise<ApiResponse<Exam[]>> 
     {
         const res = await this.examService.getAllExamsBySubjectAndTitle(sid, title)
+        return {
+            status: 200,
+            message: 'Exams fetched.',
+            data: res
+        }
+    }
+
+    @Get('my-exams/filter')
+    @ApiBearerAuth('jwt')
+    @UseGuards(AppAuthGuard)
+    async getMyExamsByFilters(
+            @Req() req,
+            @Query('sid') sid: number,
+            @Query('title') title: string
+    ): Promise<ApiResponse<Exam[]>> 
+    {
+        const res = await this.examService.getMyExamsBySubjectAndTitle(req.user.userid, sid, title)
         return {
             status: 200,
             message: 'Exams fetched.',

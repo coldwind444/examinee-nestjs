@@ -6,6 +6,7 @@ import { Attempt } from "./attempt.entity";
 import { AppAuthGuard } from "../auth/guards/auth.guard";
 import { AttemptCreateDto } from "./dtos/attempt-create.dto";
 import { ApiBearerAuth } from "@nestjs/swagger";
+import { title } from "process";
 
 @Controller('attempts')
 export class AttemptController {
@@ -37,6 +38,18 @@ export class AttemptController {
         }
     }
 
+    @Get('history/filter')
+    @ApiBearerAuth('jwt')
+    @UseGuards(AppAuthGuard)
+    async getHistoryByFilters(@Req() req, @Query('sid') sid: number, @Query('title') title: string) : Promise<ApiResponse<Exam[]>> {
+        const res = await this.attemptService.getHistoryByFilters(req.user.userid, sid, title)
+        return {
+            status: 200,
+            message: 'History fetched.',
+            data: res
+        }
+    }
+
     @Get()
     @ApiBearerAuth('jwt')
     @UseGuards(AppAuthGuard)
@@ -58,6 +71,30 @@ export class AttemptController {
             status: 200,
             message: 'Sumit success.',
             data: true
+        }
+    }
+
+    @Get('done-exams')
+    @ApiBearerAuth('jwt')
+    @UseGuards(AppAuthGuard)
+    async countDoneExams(@Req() req) : Promise<ApiResponse<number>> {
+        const res = await this.attemptService.countDoneExams(req.user.userid)
+        return {
+            status: 200,
+            message: 'Success',
+            data: res
+        }
+    }
+
+    @Get('total')
+    @ApiBearerAuth('jwt')
+    @UseGuards(AppAuthGuard)
+    async countTotalAttempts(@Req() req) : Promise<ApiResponse<number>> {
+        const res = await this.attemptService.countAttempts(req.user.userid)
+        return {
+            status: 200,
+            message: 'Success',
+            data: res
         }
     }
 }

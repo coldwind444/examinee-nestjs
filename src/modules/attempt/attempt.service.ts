@@ -5,6 +5,7 @@ import { In, Repository } from "typeorm";
 import { Exam } from "../exam/entities/exam.entity";
 import { AttemptCreateDto } from "./dtos/attempt-create.dto";
 import { Question } from "../exam/entities/question.entity";
+import { ILike } from "typeorm";
 
 @Injectable()
 export class AttemptService {
@@ -23,10 +24,10 @@ export class AttemptService {
         const attempts = await this.attemptRepository
             .createQueryBuilder('attempt')
             .select('attempt.exam_id', 'examId')
-            .addSelect('MAX(attempt.date_time)', 'dateTime') 
-            .where('attempt.user_id = :userid', { userid }) 
+            .addSelect('MAX(attempt.date_time)', 'dateTime')
+            .where('attempt.user_id = :userid', { userid })
             .groupBy('attempt.exam_id')
-            .orderBy('dateTime', 'DESC') 
+            .orderBy('dateTime', 'DESC')
             .limit(4)
             .getRawMany();
 
@@ -44,6 +45,24 @@ export class AttemptService {
         });
     }
 
+    async countDoneExams(userid: number): Promise<number> {
+        const count = await this.attemptRepository
+            .createQueryBuilder('attempt')
+            .select('COUNT(DISTINCT attempt.exam_id)', 'count')
+            .where('attempt.user_id = :userid', { userid })
+            .getRawOne();
+
+        const total = parseInt(count.count, 10);
+        return total
+    }
+
+    async countAttempts(userid: number): Promise<number> {
+        return this.attemptRepository.count({
+            where: {
+                user: { id: userid }
+            }
+        })
+    }
 
     async getHistory(userid: number): Promise<Exam[]> {
         const attempts = await this.attemptRepository
@@ -64,6 +83,47 @@ export class AttemptService {
             relations: ['subject']
         })
     }
+
+    async getHistoryByFilters(
+        userid: number,
+        subjectId?: number, 
+        title?: string 
+    ): Promise<Exam[]> {
+        const attempts = await this.attemptRepository
+            .createQueryBuilder('attempt')
+            .select('attempt.exam_id', 'examId')
+            .where('attempt.user_id = :userid', { userid })
+            .groupBy('attempt.exam_id')
+            .getRawMany();
+
+        const eids = attempts.map(a => a.examId);
+
+        if (eids.length === 0) {
+            throw new HttpException('Empty exam list.', HttpStatus.NOT_FOUND);
+        }
+
+        const whereConditions: any = {
+            id: In(eids)
+        };
+
+        // Add title filter
+        if (title) {
+            whereConditions.title = ILike(`%${title}%`);
+        }
+
+        // Add subject filter
+        if (subjectId) {
+            whereConditions.subject = {
+                id: subjectId
+            };
+        }
+
+        return this.examRepository.find({
+            where: whereConditions,
+            relations: ['subject']
+        });
+    }
+
 
     getAttemptsOfExam(userid: number, eid: number): Promise<Attempt[]> {
         return this.attemptRepository.find({

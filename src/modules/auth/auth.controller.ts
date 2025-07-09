@@ -51,7 +51,7 @@ export class AuthController {
         }
     }
 
-    @Post('refresh-token')
+    @Get('refresh-token')
     @ApiBearerAuth('jwt')
     @UseGuards(AppAuthGuard)
     async refreshToken(@Request() req, @Query('refresh', ParseBoolPipe) refresh: boolean): Promise<ApiResponse<TokenDto>> {
@@ -63,7 +63,7 @@ export class AuthController {
         }
     }
 
-    @Post('otp-request')
+    @Get('otp-request')
     async requestOtp(@Query('email') email: string): Promise<ApiResponse<OtpResponseDto>> {
         const res = await this.authService.getOtp(email)
         return {

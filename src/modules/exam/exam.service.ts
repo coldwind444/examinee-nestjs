@@ -35,6 +35,10 @@ export class ExamService {
         return exams
     }
 
+    async getAllSubjects(): Promise<Subject[]> {
+        return this.subjectRepository.find()
+    }
+
     async getMyExams(userid: number): Promise<Exam[]> {
         const exams = await this.examRepository.find({
             where: {
@@ -46,17 +50,55 @@ export class ExamService {
         return exams
     }
 
-    async getAllExamsBySubjectAndTitle(sid: number, title: string): Promise<Exam[]> {
+    async getAllExamsBySubjectAndTitle(sid?: number, title?: string): Promise<Exam[]> {
+        const where: any = {};
+
+        if (sid) {
+            where.subject = { id: sid };
+        }
+
+        if (title) {
+            where.title = Like(`%${title}%`);
+        }
+
         const exams = await this.examRepository.find({
-            where: {
-                subject: { id: sid },
-                title: Like(title)
-            },
+            where,
             relations: ['subject']
-        })
-        if (!exams) throw new HttpException('Empty exam list.', HttpStatus.NOT_FOUND)
-        return exams
+        });
+
+        if (!exams || exams.length === 0) {
+            throw new HttpException('Empty exam list.', HttpStatus.NOT_FOUND);
+        }
+
+        return exams;
     }
+
+
+    async getMyExamsBySubjectAndTitle(userid: number, sid?: number, title?: string): Promise<Exam[]> {
+        const where: any = {
+            publisher: { id: userid }
+        };
+
+        if (sid) {
+            where.subject = { id: sid };
+        }
+
+        if (title) {
+            where.title = Like(`%${title}%`);
+        }
+
+        const exams = await this.examRepository.find({
+            where,
+            relations: ['subject']
+        });
+
+        if (!exams || exams.length === 0) {
+            throw new HttpException('Empty exam list.', HttpStatus.NOT_FOUND);
+        }
+
+        return exams;
+    }
+
 
     async getExamQuestions(eid: number): Promise<QuestionResponseDto[]> {
         const questions = await this.questionRepository.find({
@@ -67,7 +109,7 @@ export class ExamService {
 
         if (!questions) throw new HttpException('Empty question list.', HttpStatus.NOT_FOUND)
 
-        const res : QuestionResponseDto[] = questions.map(q => ({
+        const res: QuestionResponseDto[] = questions.map(q => ({
             id: q.id,
             order: q.order,
             content: q.content,
@@ -80,7 +122,7 @@ export class ExamService {
                 where: {
                     question: { id: val.id }
                 }
-            }) 
+            })
             if (!choices) throw new HttpException('Empty choice list.', HttpStatus.NOT_FOUND)
             val.choices = choices.map(c => ({ letter: c.letter, content: c.content }))
         })
