@@ -102,12 +102,11 @@ export class ExamService {
 
     async getExamQuestions(eid: number): Promise<QuestionResponseDto[]> {
         const questions = await this.questionRepository.find({
-            where: {
-                exam: { id: eid },
-            }
-        })
+            where: { exam: { id: eid } }
+        });
 
-        if (!questions) throw new HttpException('Empty question list.', HttpStatus.NOT_FOUND)
+        if (!questions || questions.length === 0)
+            throw new HttpException('Empty question list.', HttpStatus.NOT_FOUND);
 
         const res: QuestionResponseDto[] = questions.map(q => ({
             id: q.id,
@@ -115,20 +114,20 @@ export class ExamService {
             content: q.content,
             key: q.key,
             choices: []
-        }))
+        }));
 
-        res.forEach(async (val, idx) => {
+        await Promise.all(res.map(async (val) => {
             const choices = await this.choiceRepository.find({
-                where: {
-                    question: { id: val.id }
-                }
-            })
-            if (!choices) throw new HttpException('Empty choice list.', HttpStatus.NOT_FOUND)
-            val.choices = choices.map(c => ({ letter: c.letter, content: c.content }))
-        })
+                where: { question: { id: val.id } }
+            });
+            if (!choices || choices.length === 0)
+                throw new HttpException('Empty choice list.', HttpStatus.NOT_FOUND);
+            val.choices = choices.map(c => ({ letter: c.letter, content: c.content }));
+        }));
 
-        return res
+        return res;
     }
+
 
     async extractQuestionsFromExcel(filePath: string, noc: number, noq: number): Promise<TemporaryQuestion[]> {
         const workbook = new ExcelJS.Workbook()
