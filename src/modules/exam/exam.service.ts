@@ -10,6 +10,7 @@ import { TemporaryChoice } from "./utils/temp-choice";
 import { ExamCreateDto } from "./dtos/exam-create.dto";
 import { Subject } from "./entities/subject.entity";
 import { QuestionResponseDto } from "./dtos/question-response.dto";
+import * as fs from 'fs/promises'
 
 @Injectable()
 export class ExamService {
@@ -142,34 +143,42 @@ export class ExamService {
         const worksheet = workbook.worksheets[0]
         let rs: TemporaryQuestion[] = []
 
-        for (let rowNumber = 2; rowNumber <= noq + 1; rowNumber++) {
-            const row = worksheet.getRow(rowNumber)
-            const content = row.getCell(2).value?.toString()
-            const key = row.getCell(noc + 3).value?.toString()
+        try {
+            for (let rowNumber = 2; rowNumber <= Number(noq) + 1; rowNumber++) {
+                const row = worksheet.getRow(rowNumber)
+                const content = row.getCell(2).value?.toString()
+                const key = row.getCell(Number(noc) + 3).value?.toString()
 
-            if (!content || !key) {
-                console.log(rowNumber)
-                throw new HttpException('Invalid format.', HttpStatus.INTERNAL_SERVER_ERROR)
-            }
-
-            let choices: TemporaryChoice[] = []
-            for (let i = 1; i <= noc; i++) {
-                const letter = String.fromCharCode(i + 64)
-                const choiceContent = row.getCell(i + 2).value?.toString()
-                if (!choiceContent) {
+                if (!content || !key) {
                     throw new HttpException('Invalid format.', HttpStatus.INTERNAL_SERVER_ERROR)
                 }
-                choices.push({ letter, content: choiceContent })
+
+                let choices: TemporaryChoice[] = []
+                for (let i = 1; i <= noc; i++) {
+                    const letter = String.fromCharCode(i + 64)
+                    const choiceContent = row.getCell(i + 2).value?.toString()
+                    if (!choiceContent) {
+                        throw new HttpException('Invalid format.', HttpStatus.INTERNAL_SERVER_ERROR)
+                    }
+                    choices.push({ letter, content: choiceContent })
+                }
+
+                rs.push({ order: rowNumber, content, key, choices })
             }
 
-            rs.push({ order: rowNumber, content, key, choices })
+            return rs
+        } finally {
+            // This block will always run, even if an error is thrown above
+            try {
+                await fs.unlink(filePath)
+            } catch (deleteErr) {
+                console.error('Failed to delete file:', deleteErr)
+            }
         }
-
-        return rs
     }
 
-    async addExam(userid: number, req: ExamCreateDto): Promise<Exam> {
-        const questions = await this.extractQuestionsFromExcel(req.filePath, req.cpq, req.noq)
+    async addExam(userid: number, req: ExamCreateDto, filePath: string): Promise<Exam> {
+        const questions = await this.extractQuestionsFromExcel(filePath, req.cpq, req.noq)
 
         const subject = await this.subjectRepository.findOne({ where: { name: req.subject } })
             ?? await this.subjectRepository.save({ name: req.subject })
